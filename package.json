@@ -1,0 +1,25 @@
+{
+  "name": "timber",
+  "version": "0.1.0",
+  "description": "Opinionated logging framework based on @dbuenzli/logs",
+  "license": "MIT",
+  "esy": {
+    "build": "refmterr dune build -p timber -j4"
+  },
+  "scripts": {
+    "format": "esy dune build @fmt --auto-promote"
+  },
+  "dependencies": {
+    "@esy-ocaml/reason": "3.5.2",
+    "refmterr": "^3.3.0",
+    "@opam/dune": "*",
+    "ocaml": "~4.7.0",
+    "@opam/fmt": "^0.8.8",
+    "@opam/logs": "^0.7.0",
+    "@opam/re": "*"
+  },
+  "devDependencies": {
+    "ocaml": "~4.7.0",
+    "@opam/merlin": "^3.3.2"
+  }
+}

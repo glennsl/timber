@@ -1,0 +1,11 @@
+(library
+    (name Timber)
+    (public_name timber)
+    (c_names bindings)
+    (libraries 
+        fmt
+        fmt.tty
+        logs
+        logs.fmt
+        re
+    )))
