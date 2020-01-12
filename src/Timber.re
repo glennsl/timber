@@ -227,6 +227,14 @@ let perf = (msg, f) => {
   ret;
 };
 
+let fn' = (~namespace=?, name, f, x) => {
+  log(~namespace?, Logs.Debug, m => m("Entering %s", name));
+  let ret = f(x);
+  log(~namespace?, Logs.Debug, m => m("Exited %s", name));
+  ret;
+};
+
+let fn = (name, f, x) => fn'(~namespace=?None, name, f, x);
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
@@ -237,6 +245,7 @@ module type Logger = {
   let info: string => unit;
   let debugf: msgf(_, unit) => unit;
   let debug: string => unit;
+  let fn: (string, 'a => 'b, 'a) => 'b;
 };
 
 let withNamespace = namespace => {
@@ -252,6 +261,7 @@ let withNamespace = namespace => {
     let info = log(Logs.Info);
     let debugf = msgf => logf(Logs.Debug, msgf);
     let debug = log(Logs.Debug);
+    let fn = (name, f, x) => fn'(~namespace, name, f, x);
   };
 
   ((module Log): (module Logger));

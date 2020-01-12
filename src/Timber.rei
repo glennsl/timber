@@ -8,6 +8,7 @@ let info: string => unit;
 let debug: (unit => string) => unit;
 let error: string => unit;
 let perf: (string, unit => 'a) => 'a;
+let fn: (string, 'a => 'b, 'a) => 'b;
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
@@ -18,6 +19,7 @@ module type Logger = {
   let info: string => unit;
   let debugf: msgf(_, unit) => unit;
   let debug: string => unit;
+  let fn: (string, 'a => 'b, 'a) => 'b;
 };
 
 let withNamespace: string => (module Logger);
