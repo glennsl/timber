@@ -293,3 +293,5 @@ let () =
   } else {
     Fmt_tty.setup_std_outputs(~style_renderer=`Ansi_tty, ());
   };
+
+Logs.set_level(Some(Logs.Info));
