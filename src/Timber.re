@@ -285,3 +285,11 @@ module App = {
 
   let setNamespaceFilter = Namespace.setFilter;
 };
+
+// init
+let () =
+  if (Sys.win32) {
+    Fmt_tty.setup_std_outputs(~style_renderer=`None, ());
+  } else {
+    Fmt_tty.setup_std_outputs(~style_renderer=`Ansi_tty, ());
+  };
