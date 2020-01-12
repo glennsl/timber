@@ -27,3 +27,12 @@ setup.log
 
 # Local OPAM switch
 _opam/
+
+# esy/dune
+_esy/
+_publish/
+_release/
+_staging/
+
+# npm
+node_modules/
