@@ -167,6 +167,18 @@ let consoleReporter = {
     Fmt.pf(ppf, "%a", style, level);
   };
 
+  let buffer = Buffer.create(0);
+  let formatter =
+    Format.make_formatter(
+      Buffer.add_substring(buffer),
+      () => {
+        // We use `Console.log` instead of `print_endline` / default formatter to work around:
+        // https://github.com/ocaml/ocaml/issues/9252
+        Console.err(Buffer.contents(buffer));
+        Buffer.clear(buffer);
+      },
+    );
+
   Logs.{
     report: (_src, level, ~over, k, msgf) => {
       let k = _ => {
@@ -182,7 +194,7 @@ let consoleReporter = {
 
         Format.kfprintf(
           k,
-          Format.err_formatter,
+          formatter,
           "%a %a %a : @[" ^^ fmt ^^ "@]@.",
           pp_level_styled,
           level,

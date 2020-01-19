@@ -7,4 +7,5 @@
         logs
         logs.fmt
         re
+        console.lib
     ))
