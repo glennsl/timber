@@ -14,7 +14,7 @@
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 
-CAMLprim value native_error(value str)
+CAMLprim value timber_prerr_native(value str)
 {
   CAMLparam1(str);
   fprintf(stderr, "%s", String_val(str));

@@ -118,7 +118,7 @@ module Internal = {
 
   // We use `native_error` instead of `prerr` / default formatter to work around:
   // https://github.com/ocaml/ocaml/issues/9252
-  external prerr_native: string => unit = "native_error";
+  external prerr_native: string => unit = "timber_prerr_native";
   let consoleFormatter = {
     let buffer = Buffer.create(0);
 
