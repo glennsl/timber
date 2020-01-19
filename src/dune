@@ -1,10 +1,12 @@
 (library
     (name Timber)
     (public_name timber)
+    (c_names  nativeChannels)
     (libraries 
         fmt
         fmt.tty
         logs
         logs.fmt
         re
+        console.lib
     ))
