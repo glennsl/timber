@@ -276,10 +276,17 @@ module App = {
   let enableDebugLogging = () =>
     Logs.Src.set_level(Logs.default, Some(Logs.Debug));
 
-  let setLogFile = path => {
+  let setLogFile = (~truncate=false, path) => {
     Option.iter(close_out, logFileChannel^);
-    let channel = open_out(path);
+
+    let mode =
+      truncate
+        ? [Open_append, Open_creat, Open_trunc, Open_text]
+        : [Open_append, Open_creat, Open_text];
+    let channel = open_out_gen(mode, 0o666, path);
+
     Printf.fprintf(channel, "Starting log file.\n%!");
+
     logFileChannel := Some(channel);
   };
 
