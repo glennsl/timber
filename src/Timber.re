@@ -12,6 +12,19 @@ module Option = {
     | None => ();
 };
 
+module Utility = {
+  let formatTime = (tm: Unix.tm) =>
+    Printf.sprintf(
+      "%i-%02i-%02iT%02i:%02i:%02iZ",
+      1900 + tm.tm_year,
+      tm.tm_mon + 1,
+      tm.tm_mday,
+      tm.tm_hour,
+      tm.tm_min,
+      tm.tm_sec,
+    );
+};
+
 module Constants = {
   let colors = [|
     // `Black
@@ -277,16 +290,24 @@ module App = {
     Logs.Src.set_level(Logs.default, Some(Logs.Debug));
 
   let setLogFile = (~truncate=false, path) => {
+    // Close previous log file, if any
     Option.iter(close_out, logFileChannel^);
 
+    // Open new log file
     let mode =
       truncate
         ? [Open_append, Open_creat, Open_trunc, Open_text]
         : [Open_append, Open_creat, Open_text];
     let channel = open_out_gen(mode, 0o666, path);
 
-    Printf.fprintf(channel, "Starting log file.\n%!");
+    // Write log file header
+    Printf.fprintf(
+      channel,
+      "\n--\nLog started at %s\n--\n\n%!",
+      Unix.time() |> Unix.gmtime |> Utility.formatTime,
+    );
 
+    // Set new log file to be used by logging functions
     logFileChannel := Some(channel);
   };
 
