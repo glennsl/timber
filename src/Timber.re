@@ -97,6 +97,15 @@ module Namespace = {
 };
 
 module DeltaTime = {
+  let lastTimestamp = ref(Unix.gettimeofday());
+
+  let get = () => {
+    let last = lastTimestamp^;
+    let now = Unix.gettimeofday();
+    lastTimestamp := now;
+    now -. last;
+  };
+
   let pp = (ppf, dt) =>
     dt > 10.
       ? Fmt.pf(ppf, "%+6.2fs", dt) : Fmt.pf(ppf, "%+5.0fms", dt *. 1000.);
@@ -104,139 +113,140 @@ module DeltaTime = {
   let tag = Logs.Tag.def("time", pp);
 };
 
-type msgf('a, 'b) = (format4('a, Format.formatter, unit, 'b) => 'a) => 'b;
+module Internal = {
+  let logFileChannel = ref(None);
 
-let logFileChannel = ref(None);
+  // We use `native_error` instead of `prerr` / default formatter to work around:
+  // https://github.com/ocaml/ocaml/issues/9252
+  external prerr_native: string => unit = "native_error";
+  let consoleFormatter = {
+    let buffer = Buffer.create(0);
 
-let fileReporter =
-  Logs.{
-    report: (_src, level, ~over, k, msgf) => {
-      let k = _ => {
-        over();
-        k();
-      };
-
-      switch (logFileChannel^) {
-      | Some(channel) =>
-        let ppf = Format.formatter_of_out_channel(channel);
-
-        msgf((~header=?, ~tags=?, fmt) => {
-          let namespace = Option.bind(tags, Tag.find(Namespace.tag));
-
-          Format.kfprintf(
-            k,
-            ppf,
-            "%a %a @[" ^^ fmt ^^ "@]@.",
-            pp_header,
-            (level, header),
-            ppf => Option.iter(Namespace.pp(ppf)),
-            namespace,
-          );
-        });
-
-      | None => k()
-      };
-    },
-  };
-
-let consoleReporter = {
-  let pp_level = (ppf, level) => {
-    let str =
-      switch (level) {
-      | Logs.App => ""
-      | Logs.Error => "ERROR"
-      | Logs.Warning => "WARN"
-      | Logs.Info => "INFO"
-      | Logs.Debug => "DEBUG"
-      };
-
-    Fmt.pf(ppf, "%-7s", "[" ++ str ++ "]");
-  };
-
-  let pp_level_styled = (ppf, level) => {
-    let (fg, bg) =
-      switch (level) {
-      | Logs.App => (`White, `Cyan)
-      | Logs.Error => (`White, `Red)
-      | Logs.Warning => (`White, `Yellow)
-      | Logs.Info => (`Black, `Blue)
-      | Logs.Debug => (`Black, `Green)
-      };
-
-    let style = Fmt.(styled(`Fg(fg), styled(`Bg(bg), pp_level)));
-    Fmt.pf(ppf, "%a", style, level);
-  };
-
-  let buffer = Buffer.create(0);
-  let formatter =
     Format.make_formatter(
       Buffer.add_substring(buffer),
       () => {
-        // We use `Console.log` instead of `print_endline` / default formatter to work around:
-        // https://github.com/ocaml/ocaml/issues/9252
-        Console.err(Buffer.contents(buffer));
+        prerr_native(Buffer.contents(buffer));
         Buffer.clear(buffer);
       },
     );
+  };
 
-  Logs.{
-    report: (_src, level, ~over, k, msgf) => {
-      let k = _ => {
-        over();
-        k();
+  let reporter = {
+    let consoleReporter = {
+      let pp_level = (ppf, level) => {
+        let str =
+          switch (level) {
+          | Logs.App => ""
+          | Logs.Error => "ERROR"
+          | Logs.Warning => "WARN"
+          | Logs.Info => "INFO"
+          | Logs.Debug => "DEBUG"
+          };
+
+        Fmt.pf(ppf, "%-7s", "[" ++ str ++ "]");
       };
 
-      msgf((~header as _=?, ~tags=?, fmt) => {
-        let namespace = Option.bind(tags, Tag.find(Namespace.tag));
-        let dt = Option.bind(tags, Tag.find(DeltaTime.tag));
-        let color = Namespace.pickColor(namespace);
-        let style = pp => Fmt.(styled(`Fg(color), pp));
+      let pp_level_styled = (ppf, level) => {
+        let (fg, bg) =
+          switch (level) {
+          | Logs.App => (`White, `Cyan)
+          | Logs.Error => (`White, `Red)
+          | Logs.Warning => (`White, `Yellow)
+          | Logs.Info => (`Black, `Blue)
+          | Logs.Debug => (`Black, `Green)
+          };
 
-        Format.kfprintf(
-          k,
-          formatter,
-          "%a %a %a : @[" ^^ fmt ^^ "@]@.",
-          pp_level_styled,
-          level,
-          ppf => Option.iter(DeltaTime.pp(ppf)),
-          dt,
-          ppf => Option.iter(Fmt.pf(ppf, "%a", style(Namespace.pp))),
-          namespace,
-        );
-      });
-    },
+        let style = Fmt.(styled(`Fg(fg), styled(`Bg(bg), pp_level)));
+        Fmt.pf(ppf, "%a", style, level);
+      };
+      Logs.{
+        report: (_src, level, ~over, k, msgf) => {
+          let k = _ => {
+            over();
+            k();
+          };
+
+          msgf((~header as _=?, ~tags=?, fmt) => {
+            let namespace = Option.bind(tags, Tag.find(Namespace.tag));
+            let dt = Option.bind(tags, Tag.find(DeltaTime.tag));
+            let color = Namespace.pickColor(namespace);
+            let style = pp => Fmt.(styled(`Fg(color), pp));
+
+            Format.kfprintf(
+              k,
+              consoleFormatter,
+              "%a %a %a : @[" ^^ fmt ^^ "@]@.",
+              pp_level_styled,
+              level,
+              ppf => Option.iter(DeltaTime.pp(ppf)),
+              dt,
+              ppf => Option.iter(Fmt.pf(ppf, "%a", style(Namespace.pp))),
+              namespace,
+            );
+          });
+        },
+      };
+    };
+
+    let fileReporter =
+      Logs.{
+        report: (_src, level, ~over, k, msgf) => {
+          let k = _ => {
+            over();
+            k();
+          };
+
+          switch (logFileChannel^) {
+          | Some(channel) =>
+            let ppf = Format.formatter_of_out_channel(channel);
+
+            msgf((~header=?, ~tags=?, fmt) => {
+              let namespace = Option.bind(tags, Tag.find(Namespace.tag));
+
+              Format.kfprintf(
+                k,
+                ppf,
+                "%a %a @[" ^^ fmt ^^ "@]@.",
+                pp_header,
+                (level, header),
+                ppf => Option.iter(Namespace.pp(ppf)),
+                namespace,
+              );
+            });
+
+          | None => k()
+          };
+        },
+      };
+
+    Logs.{
+      report: (src, level, ~over, k, msgf) => {
+        let kret =
+          consoleReporter.report(src, level, ~over=() => (), k, msgf);
+        fileReporter.report(src, level, ~over, () => kret, msgf);
+      },
+    };
   };
 };
-
-let reporter =
-  Logs.{
-    report: (src, level, ~over, k, msgf) => {
-      let kret = consoleReporter.report(src, level, ~over=() => (), k, msgf);
-      fileReporter.report(src, level, ~over, () => kret, msgf);
-    },
-  };
 
 let isPrintingEnabled = () => Logs.reporter() !== Logs.nop_reporter;
 let isDebugLoggingEnabled = () =>
   Logs.Src.level(Logs.default) == Some(Logs.Debug);
 let isNamespaceEnabled = Namespace.isEnabled;
 
-let lastLogTime = ref(Unix.gettimeofday());
+type msgf('a, 'b) = (format4('a, Format.formatter, unit, 'b) => 'a) => 'b;
 
 let log = (~namespace="Global", level, msgf) =>
   Logs.msg(level, m =>
     if (Namespace.isEnabled(namespace)) {
-      let now = Unix.gettimeofday();
       let tags =
         Logs.Tag.(
           empty
           |> add(Namespace.tag, namespace)
-          |> add(DeltaTime.tag, now -. lastLogTime^)
+          |> add(DeltaTime.tag, DeltaTime.get())
         );
 
       msgf(m(~header=?None, ~tags));
-
-      lastLogTime := now;
     }
   );
 
@@ -296,14 +306,14 @@ module App = {
   let disableColors = () =>
     Fmt_tty.setup_std_outputs(~style_renderer=`None, ());
 
-  let enablePrinting = () => Logs.set_reporter(reporter);
+  let enablePrinting = () => Logs.set_reporter(Internal.reporter);
 
   let enableDebugLogging = () =>
     Logs.Src.set_level(Logs.default, Some(Logs.Debug));
 
   let setLogFile = (~truncate=false, path) => {
     // Close previous log file, if any
-    Option.iter(close_out, logFileChannel^);
+    Option.iter(close_out, Internal.logFileChannel^);
 
     // Open new log file
     let mode =
@@ -320,7 +330,7 @@ module App = {
     );
 
     // Set new log file to be used by logging functions
-    logFileChannel := Some(channel);
+    Internal.logFileChannel := Some(channel);
   };
 
   let setNamespaceFilter = Namespace.setFilter;
@@ -329,9 +339,9 @@ module App = {
 // init
 let () =
   if (Sys.win32) {
-    Fmt_tty.setup_std_outputs(~style_renderer=`None, ());
+    Fmt.set_style_renderer(Internal.consoleFormatter, `None);
   } else {
-    Fmt_tty.setup_std_outputs(~style_renderer=`Ansi_tty, ());
+    Fmt.set_style_renderer(Internal.consoleFormatter, `Ansi_tty);
   };
 
 Logs.set_level(Some(Logs.Info));
