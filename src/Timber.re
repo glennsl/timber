@@ -156,9 +156,9 @@ let consoleReporter = {
   let pp_level_styled = (ppf, level) => {
     let (fg, bg) =
       switch (level) {
-      | Logs.App => (`White, `Cyan)
-      | Logs.Error => (`White, `Red)
-      | Logs.Warning => (`White, `Yellow)
+      | Logs.App => (`Black, `Cyan)
+      | Logs.Error => (`Black, `Red)
+      | Logs.Warning => (`Black, `Yellow)
       | Logs.Info => (`Black, `Blue)
       | Logs.Debug => (`Black, `Green)
       };
