@@ -4,11 +4,7 @@ let isPrintingEnabled: unit => bool;
 let isDebugLoggingEnabled: unit => bool;
 let isNamespaceEnabled: string => bool;
 
-let info: string => unit;
-let debug: (unit => string) => unit;
-let error: string => unit;
 let perf: (string, unit => 'a) => 'a;
-let fn: (string, 'a => 'b, ~pp: 'b => string=?, 'a) => 'b;
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;

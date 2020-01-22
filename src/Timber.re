@@ -299,10 +299,6 @@ let isNamespaceEnabled = Namespace.isEnabled;
 
 type msgf('a, 'b) = (format4('a, Format.formatter, unit, 'b) => 'a) => 'b;
 
-let info = msg => Internal.log(Level.info, m => m("%s", msg));
-let debug = msgf => Internal.log(Level.debug, m => m("%s", msgf()));
-let error = msg => Internal.log(Level.error, m => m("%s", msg));
-
 let perf = (msg, f) => {
   let startTime = Unix.gettimeofday();
   let ret = f();
@@ -312,9 +308,6 @@ let perf = (msg, f) => {
   );
   ret;
 };
-
-let fn = (name, f, ~pp=?, x) =>
-  Internal.fn(~namespace=?None, name, f, ~pp?, x);
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
