@@ -1,7 +1,5 @@
 open Utility;
 
-let currentMicrolevel = ref(None);
-
 module Console = {
   // We use `native_error` instead of `prerr` / default formatter to work around:
   // https://github.com/ocaml/ocaml/issues/9252
@@ -129,20 +127,4 @@ let all =
   };
 
 let isEnabled = () => Logs.reporter() !== Logs.nop_reporter;
-
-let setReporter = Logs.set_reporter;
-
-let currentLevel = () =>
-  Logs.level() |> Option.map(level => (level, currentMicrolevel^));
-
-let isLevelEnabled = level =>
-  switch (Logs.level()) {
-  | Some(currentLevel) =>
-    Level.compare((currentLevel, currentMicrolevel^), level) <= 0
-  | None => false
-  };
-
-let setLevel = ((level, microlevel)) => {
-  Logs.set_level(Some(level));
-  currentMicrolevel := microlevel;
-};
+let set = Logs.set_reporter;

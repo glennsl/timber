@@ -1,11 +1,5 @@
 type msgf('a, 'b) = (format4('a, Format.formatter, unit, 'b) => 'a) => 'b;
 
-let isPrintingEnabled: unit => bool;
-let isDebugLoggingEnabled: unit => bool;
-let isNamespaceEnabled: string => bool;
-
-let perf: (string, unit => 'a) => 'a;
-
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
   let error: string => unit;
@@ -20,16 +14,35 @@ module type Logger = {
   let fn: (string, 'a => 'b, ~pp: 'b => string=?, 'a) => 'b;
 };
 
-let withNamespace: string => (module Logger);
+module Level: {
+  type t;
+
+  let error: t;
+  let warn: t;
+  let info: t;
+  let debug: t;
+  let trace: t;
+  let perf: t;
+};
+
+module Log: {
+  let withNamespace: string => (module Logger);
+  let perf: (string, unit => 'a) => 'a;
+};
 
 module App: {
   // These function should only be used by the application, not libraries
 
-  let disableColors: unit => unit;
-  let enablePrinting: unit => unit;
-  let enableDebugLogging: unit => unit;
-  let enableTraceLogging: unit => unit;
+  let isEnabled: unit => bool;
+  let isLevelEnabled: Level.t => bool;
+  let isNamespaceEnabled: string => bool;
+
+  let enable: unit => unit;
+  let disable: unit => unit;
+
+  let setLevel: Level.t => unit;
   let setLogFile: (~truncate: bool=?, string) => unit;
+  let disableColors: unit => unit;
 
   /**
    * setNamespaceFilter(filters)

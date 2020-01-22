@@ -1,7 +1,7 @@
 module Internal = {
   let log = (~namespace="Global", (level, maybeMicrolevel), msgf) =>
     Logs.msg(level, m =>
-      if (Reporter.isLevelEnabled((level, maybeMicrolevel))
+      if (Level.isEnabled((level, maybeMicrolevel))
           && Namespace.isEnabled(namespace)) {
         let tags =
           Logs.Tag.(
@@ -34,22 +34,7 @@ module Internal = {
   };
 };
 
-let isPrintingEnabled = Reporter.isEnabled;
-let isDebugLoggingEnabled = () =>
-  Reporter.currentLevel() == Some(Level.debug);
-let isNamespaceEnabled = Namespace.isEnabled;
-
 type msgf('a, 'b) = (format4('a, Format.formatter, unit, 'b) => 'a) => 'b;
-
-let perf = (msg, f) => {
-  let startTime = Unix.gettimeofday();
-  let ret = f();
-  let endTime = Unix.gettimeofday();
-  Internal.log(~namespace="Performance Mesaurement", Level.perf, m =>
-    m("%s took %fs", msg, endTime -. startTime)
-  );
-  ret;
-};
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
@@ -65,36 +50,52 @@ module type Logger = {
   let fn: (string, 'a => 'b, ~pp: 'b => string=?, 'a) => 'b;
 };
 
-let withNamespace = namespace => {
-  let logf = (level, msgf) => Internal.log(~namespace, level, msgf);
-  let log = (level, msg) => logf(level, m => m("%s", msg));
+module Level = Level;
 
-  module Log = {
-    let errorf = msgf => logf(Level.error, msgf);
-    let error = log(Level.error);
-    let warnf = msgf => logf(Level.warn, msgf);
-    let warn = log(Level.warn);
-    let infof = msgf => logf(Level.info, msgf);
-    let info = log(Level.info);
-    let debugf = msgf => logf(Level.debug, msgf);
-    let debug = log(Level.debug);
-    let tracef = msgf => logf(Level.trace, msgf);
-    let trace = log(Level.trace);
-    let fn = (name, f, ~pp=?, x) =>
-      Internal.fn(~namespace, name, f, ~pp?, x);
+module Log = {
+  let perf = (msg, f) => {
+    let startTime = Unix.gettimeofday();
+    let ret = f();
+    let endTime = Unix.gettimeofday();
+    Internal.log(~namespace="Performance Mesaurement", Level.perf, m =>
+      m("%s took %fs", msg, endTime -. startTime)
+    );
+    ret;
   };
 
-  ((module Log): (module Logger));
+  let withNamespace = namespace => {
+    let logf = (level, msgf) => Internal.log(~namespace, level, msgf);
+    let log = (level, msg) => logf(level, m => m("%s", msg));
+
+    module Log = {
+      let errorf = msgf => logf(Level.error, msgf);
+      let error = log(Level.error);
+      let warnf = msgf => logf(Level.warn, msgf);
+      let warn = log(Level.warn);
+      let infof = msgf => logf(Level.info, msgf);
+      let info = log(Level.info);
+      let debugf = msgf => logf(Level.debug, msgf);
+      let debug = log(Level.debug);
+      let tracef = msgf => logf(Level.trace, msgf);
+      let trace = log(Level.trace);
+      let fn = (name, f, ~pp=?, x) =>
+        Internal.fn(~namespace, name, f, ~pp?, x);
+    };
+
+    ((module Log): (module Logger));
+  };
 };
 
 module App = {
+  let isEnabled = Reporter.isEnabled;
+  let isLevelEnabled = Level.isEnabled;
+  let isNamespaceEnabled = Namespace.isEnabled;
+
+  let enable = () => Reporter.(set(all));
+  let disable = () => Reporter.(set(none));
+
   let disableColors = Reporter.Console.disableColors;
-
-  let enablePrinting = () => Reporter.(setReporter(all));
-
-  let enableDebugLogging = () => Reporter.setLevel(Level.debug);
-  let enableTraceLogging = () => Reporter.setLevel(Level.trace);
-
+  let setLevel = Level.set;
   let setLogFile = Reporter.File.setLogFile;
   let setNamespaceFilter = Namespace.setFilter;
 };
@@ -108,4 +109,4 @@ let () =
   };
 
 // default to only log messages at log level Info and above
-Reporter.setLevel(Level.info);
+Level.set(Level.info);

@@ -1,9 +1,9 @@
-Timber.App.enablePrinting();
-Timber.App.enableTraceLogging();
+Timber.App.enable();
+Timber.App.setLevel(Timber.Level.trace);
 Timber.App.setLogFile("test.log");
 
 {
-  module Log = (val Timber.withNamespace("Timber"));
+  module Log = (val Timber.Log.withNamespace("Timber"));
 
   Log.trace("trace");
   Log.debug("debug");
@@ -13,7 +13,7 @@ Timber.App.setLogFile("test.log");
 };
 
 {
-  module Log = (val Timber.withNamespace("Timber.Formatters"));
+  module Log = (val Timber.Log.withNamespace("Timber.Formatters"));
 
   Log.tracef(m => m("tracef - User time: %fs", Unix.times().tms_utime));
   Log.debugf(m => m("debugf - System time: %fs", Unix.times().tms_stime));
@@ -23,11 +23,11 @@ Timber.App.setLogFile("test.log");
 };
 
 {
-  Timber.perf("perf", () => Unix.sleepf(0.25));
+  Timber.Log.perf("perf", () => Unix.sleepf(0.25));
 };
 
 {
-  module Log = (val Timber.withNamespace("Timber.Fn"));
+  module Log = (val Timber.Log.withNamespace("Timber.Fn"));
 
   Log.fn("Unix.sleepf", Unix.sleepf, 0.25);
   Log.fn("Unix.getppid", ~pp=string_of_int, Unix.getppid, ());

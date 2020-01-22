@@ -62,3 +62,17 @@ let rank =
   | (Logs.Debug, Some(Microlevel.Trace)) => 10;
 
 let compare = (a, b) => compare(rank(a), rank(b));
+
+let currentMicrolevel = ref(None);
+
+let isEnabled = level =>
+  switch (Logs.level()) {
+  | Some(currentLevel) =>
+    compare((currentLevel, currentMicrolevel^), level) <= 0
+  | None => false
+  };
+
+let set = ((level, microlevel)) => {
+  Logs.set_level(Some(level));
+  currentMicrolevel := microlevel;
+};
