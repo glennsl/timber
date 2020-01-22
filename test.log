@@ -384,3 +384,140 @@ Log started at 2020-01-22T13:04:27Z
 [TRACE] Timber.Fn Exited Unix.sleepf
 [TRACE] Timber.Fn Entering Unix.getppid
 [TRACE] Timber.Fn Exited Unix.getppid with 3747
+
+--
+Log started at 2020-01-22T13:10:53Z
+--
+
+[TRACE] Timber trace
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[TRACE] Timber.Formatters tracef - User time: 0.002178s
+[DEBUG] Timber.Formatters debugf - System time: 0.000000s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 5776
+[ERROR] Timber.Formatters errorf - Since 1970: 1579698653.060107s
+[PERF]  Performance Mesaurement perf took 0.250073s
+[TRACE] Timber.Fn Entering Unix.sleepf
+[TRACE] Timber.Fn Exited Unix.sleepf
+[TRACE] Timber.Fn Entering Unix.getppid
+[TRACE] Timber.Fn Exited Unix.getppid with 5751
+
+--
+Log started at 2020-01-22T13:17:37Z
+--
+
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 8938
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699057.048845s
+
+--
+Log started at 2020-01-22T13:18:13Z
+--
+
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[DEBUG] Timber.Formatters debugf - System time: 0.001516s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 9114
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699093.448282s
+
+--
+Log started at 2020-01-22T13:19:01Z
+--
+
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[DEBUG] Timber.Formatters debugf - System time: 0.000000s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 9449
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699141.358307s
+
+--
+Log started at 2020-01-22T13:19:10Z
+--
+
+[TRACE] Timber trace
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[TRACE] Timber.Formatters tracef - User time: 0.001898s
+[DEBUG] Timber.Formatters debugf - System time: 0.000000s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 9634
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699150.351022s
+[PERF]  Performance Mesaurement perf took 0.250063s
+[TRACE] Timber.Fn Entering Unix.sleepf
+[TRACE] Timber.Fn Exited Unix.sleepf
+[TRACE] Timber.Fn Entering Unix.getppid
+[TRACE] Timber.Fn Exited Unix.getppid with 9608
+
+--
+Log started at 2020-01-22T13:21:12Z
+--
+
+[TRACE] Timber trace
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[TRACE] Timber.Formatters tracef - User time: 0.002167s
+[DEBUG] Timber.Formatters debugf - System time: 0.000000s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 9997
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699272.132596s
+[PERF]  Performance Mesaurement perf took 0.250074s
+[TRACE] Timber.Fn Entering Unix.sleepf
+[TRACE] Timber.Fn Exited Unix.sleepf
+[TRACE] Timber.Fn Entering Unix.getppid
+[TRACE] Timber.Fn Exited Unix.getppid with 9940
+
+--
+Log started at 2020-01-22T13:22:09Z
+--
+
+[TRACE] Timber trace
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[TRACE] Timber.Formatters tracef - User time: 0.002331s
+[DEBUG] Timber.Formatters debugf - System time: 0.000000s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 10416
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699329.433513s
+[PERF]  Performance Mesaurement perf took 0.250070s
+[TRACE] Timber.Fn Entering Unix.sleepf
+[TRACE] Timber.Fn Exited Unix.sleepf
+[TRACE] Timber.Fn Entering Unix.getppid
+[TRACE] Timber.Fn Exited Unix.getppid with 10372
+
+--
+Log started at 2020-01-22T13:22:31Z
+--
+
+[TRACE] Timber trace
+[DEBUG] Timber debug
+[INFO]  Timber info
+[WARN]  Timber warn
+[ERROR] Timber error
+[TRACE] Timber.Formatters tracef - User time: 0.002362s
+[DEBUG] Timber.Formatters debugf - System time: 0.000000s
+[INFO]  Timber.Formatters infof - UID 1000
+[WARN]  Timber.Formatters warnf - PID: 10613
+[ERROR] Timber.Formatters errorf - Since 1970: 1579699351.316575s
+[PERF]  Performance Mesaurement perf took 0.250071s
+[TRACE] Timber.Fn Entering Unix.sleepf
+[TRACE] Timber.Fn Exited Unix.sleepf
+[TRACE] Timber.Fn Entering Unix.getppid
+[TRACE] Timber.Fn Exited Unix.getppid with 10563

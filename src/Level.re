@@ -38,7 +38,8 @@ let toColors =
   | (Logs.Warning, _) => (`Black, `Yellow)
   | (Logs.Info, _) => (`Black, `Blue)
   | (Logs.Debug, None) => (`Black, `Green)
-  | (Logs.Debug, Some(_)) => (`Black, `White);
+  | (Logs.Debug, Some(Microlevel.Perf)) => (`Black, `Hi(`Black))
+  | (Logs.Debug, Some(Microlevel.Trace)) => (`Black, `White);
 
 let pp = (ppf, level: t) =>
   Fmt.pf(ppf, "%-7s", "[" ++ toString(level) ++ "]");
@@ -49,3 +50,15 @@ let pp_styled = (ppf, level) => {
   let style = Fmt.(styled(`Fg(fg), styled(`Bg(bg), pp)));
   Fmt.pf(ppf, "%a", style, level);
 };
+
+let rank =
+  fun
+  | (Logs.App, _) => 100
+  | (Logs.Error, _) => 80
+  | (Logs.Warning, _) => 60
+  | (Logs.Info, _) => 40
+  | (Logs.Debug, None) => 20
+  | (Logs.Debug, Some(Microlevel.Perf)) => 15
+  | (Logs.Debug, Some(Microlevel.Trace)) => 10;
+
+let compare = (a, b) => compare(rank(a), rank(b));

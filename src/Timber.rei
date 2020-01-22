@@ -28,6 +28,7 @@ module App: {
   let disableColors: unit => unit;
   let enablePrinting: unit => unit;
   let enableDebugLogging: unit => unit;
+  let enableTraceLogging: unit => unit;
   let setLogFile: (~truncate: bool=?, string) => unit;
 
   /**

@@ -1,5 +1,5 @@
 Timber.App.enablePrinting();
-Timber.App.enableDebugLogging();
+Timber.App.enableTraceLogging();
 Timber.App.setLogFile("test.log");
 
 {

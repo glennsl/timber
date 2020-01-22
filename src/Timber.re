@@ -1,7 +1,8 @@
 module Internal = {
   let log = (~namespace="Global", (level, maybeMicrolevel), msgf) =>
     Logs.msg(level, m =>
-      if (Namespace.isEnabled(namespace)) {
+      if (Reporter.isLevelEnabled((level, maybeMicrolevel))
+          && Namespace.isEnabled(namespace)) {
         let tags =
           Logs.Tag.(
             empty
@@ -92,6 +93,7 @@ module App = {
   let enablePrinting = () => Reporter.(setReporter(all));
 
   let enableDebugLogging = () => Reporter.setLevel(Level.debug);
+  let enableTraceLogging = () => Reporter.setLevel(Level.trace);
 
   let setLogFile = Reporter.File.setLogFile;
   let setNamespaceFilter = Namespace.setFilter;

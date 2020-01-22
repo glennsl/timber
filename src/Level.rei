@@ -14,3 +14,5 @@ let perf: t;
 
 let pp: Fmt.t(t);
 let pp_styled: Fmt.t(t);
+
+let compare: (t, t) => int;

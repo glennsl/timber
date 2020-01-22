@@ -13,4 +13,5 @@ let all: Logs.reporter;
 let isEnabled: unit => bool;
 let setReporter: Logs.reporter => unit;
 let currentLevel: unit => option(Level.t);
+let isLevelEnabled: Level.t => bool;
 let setLevel: Level.t => unit;

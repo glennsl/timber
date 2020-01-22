@@ -35,6 +35,7 @@ module Console = {
           let tags = Option.get(tags);
           let namespace = Tag.get(Namespace.tag, tags);
           let microlevel = Tag.find(Level.Microlevel.tag, tags);
+          let level = (level, microlevel);
           let dt = Tag.get(DeltaTime.tag, tags);
           let color = Namespace.pickColor(namespace);
           let style = pp => Fmt.(styled(`Fg(color), pp));
@@ -44,7 +45,7 @@ module Console = {
             formatter,
             "%a %a %a : @[" ^^ fmt ^^ "@]@.",
             Level.pp_styled,
-            (level, microlevel),
+            level,
             DeltaTime.pp,
             dt,
             ppf => Fmt.pf(ppf, "%a", style(Namespace.pp)),
@@ -93,17 +94,18 @@ module File = {
           let ppf = Format.formatter_of_out_channel(channel);
 
           msgf((~header as _=?, ~tags=?, fmt) => {
-            let namespace = Option.bind(tags, Tag.find(Namespace.tag));
-            let microlevel =
-              Option.bind(tags, Tag.find(Level.Microlevel.tag));
+            let tags = Option.get(tags);
+            let namespace = Tag.get(Namespace.tag, tags);
+            let microlevel = Tag.find(Level.Microlevel.tag, tags);
+            let level = (level, microlevel);
 
             Format.kfprintf(
               k,
               ppf,
               "%a %a @[" ^^ fmt ^^ "@]@.",
               Level.pp,
-              (level, microlevel),
-              ppf => Option.iter(Namespace.pp(ppf)),
+              level,
+              Namespace.pp,
               namespace,
             );
           });
@@ -132,6 +134,13 @@ let setReporter = Logs.set_reporter;
 
 let currentLevel = () =>
   Logs.level() |> Option.map(level => (level, currentMicrolevel^));
+
+let isLevelEnabled = level =>
+  switch (Logs.level()) {
+  | Some(currentLevel) =>
+    Level.compare((currentLevel, currentMicrolevel^), level) <= 0
+  | None => false
+  };
 
 let setLevel = ((level, microlevel)) => {
   Logs.set_level(Some(level));
