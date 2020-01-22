@@ -57,7 +57,7 @@ module Log = {
     let startTime = Unix.gettimeofday();
     let ret = f();
     let endTime = Unix.gettimeofday();
-    Internal.log(~namespace="Performance Mesaurement", Level.perf, m =>
+    Internal.log(~namespace="Performance Measurement", Level.perf, m =>
       m("%s took %fs", msg, endTime -. startTime)
     );
     ret;
