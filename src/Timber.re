@@ -279,10 +279,15 @@ module Internal = {
       }
     );
 
-  let fn = (~namespace=?, name, f, x) => {
+  let fn = (~namespace=?, name, f, ~pp=?, x) => {
     log(~namespace?, Level.trace, m => m("Entering %s", name));
     let ret = f(x);
-    log(~namespace?, Level.trace, m => m("Exited %s", name));
+    log(~namespace?, Level.trace, m =>
+      switch (pp) {
+      | Some(pp) => m("Exited %s with %s", name, pp(ret))
+      | None => m("Exited %s%s", name, "") // THis weirdness is because the turened formatter must have the same type for both branches
+      }
+    );
     ret;
   };
 };
@@ -302,11 +307,14 @@ let perf = (msg, f) => {
   let startTime = Unix.gettimeofday();
   let ret = f();
   let endTime = Unix.gettimeofday();
-  Internal.log(~namespace="Performance Mesaurement", Level.perf, m => m("%s took %fs", msg, endTime -. startTime));
+  Internal.log(~namespace="Performance Mesaurement", Level.perf, m =>
+    m("%s took %fs", msg, endTime -. startTime)
+  );
   ret;
 };
 
-let fn = (name, f, x) => Internal.fn(~namespace=?None, name, f, x);
+let fn = (name, f, ~pp=?, x) =>
+  Internal.fn(~namespace=?None, name, f, ~pp?, x);
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
@@ -319,7 +327,7 @@ module type Logger = {
   let debug: string => unit;
   let tracef: msgf(_, unit) => unit;
   let trace: string => unit;
-  let fn: (string, 'a => 'b, 'a) => 'b;
+  let fn: (string, 'a => 'b, ~pp: 'b => string=?, 'a) => 'b;
 };
 
 let withNamespace = namespace => {
@@ -337,7 +345,8 @@ let withNamespace = namespace => {
     let debug = log(Level.debug);
     let tracef = msgf => logf(Level.trace, msgf);
     let trace = log(Level.trace);
-    let fn = (name, f, x) => Internal.fn(~namespace, name, f, x);
+    let fn = (name, f, ~pp=?, x) =>
+      Internal.fn(~namespace, name, f, ~pp?, x);
   };
 
   ((module Log): (module Logger));
