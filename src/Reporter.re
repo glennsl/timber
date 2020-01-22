@@ -121,8 +121,8 @@ let file = File.reporter;
 let all =
   Logs.{
     report: (src, level, ~over, k, msgf) => {
-      let kret = file.report(src, level, ~over=() => (), k, msgf);
-      console.report(src, level, ~over, () => kret, msgf);
+      let kret = console.report(src, level, ~over=() => (), k, msgf);
+      file.report(src, level, ~over, () => kret, msgf);
     },
   };
 
