@@ -19,6 +19,8 @@ module type Logger = {
   let info: string => unit;
   let debugf: msgf(_, unit) => unit;
   let debug: string => unit;
+  let tracef: msgf(_, unit) => unit;
+  let trace: string => unit;
   let fn: (string, 'a => 'b, 'a) => 'b;
 };
 

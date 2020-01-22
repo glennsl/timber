@@ -113,6 +113,60 @@ module DeltaTime = {
   let tag = Logs.Tag.def("time", pp);
 };
 
+module Microlevel = {
+  type t =
+    | Trace
+    | Perf;
+
+  let toString =
+    fun
+    | Trace => "TRACE"
+    | Perf => "PERF";
+
+  let pp = (ppf, level) => Fmt.pf(ppf, "%s", toString(level));
+
+  let tag = Logs.Tag.def("microlevel", pp);
+};
+
+module Level = {
+  type t = (Logs.level, option(Microlevel.t));
+
+  let error = (Logs.Error, None);
+  let warn = (Logs.Warning, None);
+  let info = (Logs.Info, None);
+  let debug = (Logs.Debug, None);
+  let trace = (Logs.Debug, Some(Microlevel.Trace));
+  let perf = (Logs.Debug, Some(Microlevel.Perf));
+
+  let toString =
+    fun
+    | (Logs.App, _) => ""
+    | (Logs.Error, _) => "ERROR"
+    | (Logs.Warning, _) => "WARN"
+    | (Logs.Info, _) => "INFO"
+    | (Logs.Debug, None) => "DEBUG"
+    | (Logs.Debug, Some(microlevel)) => Microlevel.toString(microlevel);
+
+  let toColors =
+    fun
+    | (Logs.App, _) => (`Black, `Cyan)
+    | (Logs.Error, _) => (`Black, `Red)
+    | (Logs.Warning, _) => (`Black, `Yellow)
+    | (Logs.Info, _) => (`Black, `Blue)
+    | (Logs.Debug, None) => (`Black, `Green)
+    | (Logs.Debug, Some(_)) => (`Black, `White);
+
+  let pp = (ppf, level: t) =>
+    Fmt.pf(ppf, "%-7s", "[" ++ toString(level) ++ "]");
+
+  let pp_styled = (ppf, level) => {
+    let (fg, bg) = toColors(level);
+
+    let style = Fmt.(styled(`Fg(fg), styled(`Bg(bg), pp)));
+    Fmt.pf(ppf, "%a", style, level);
+  };
+};
+
 module Internal = {
   let logFileChannel = ref(None);
 
@@ -133,32 +187,6 @@ module Internal = {
 
   let reporter = {
     let consoleReporter = {
-      let pp_level = (ppf, level) => {
-        let str =
-          switch (level) {
-          | Logs.App => ""
-          | Logs.Error => "ERROR"
-          | Logs.Warning => "WARN"
-          | Logs.Info => "INFO"
-          | Logs.Debug => "DEBUG"
-          };
-
-        Fmt.pf(ppf, "%-7s", "[" ++ str ++ "]");
-      };
-
-      let pp_level_styled = (ppf, level) => {
-        let (fg, bg) =
-          switch (level) {
-          | Logs.App => (`Black, `Cyan)
-          | Logs.Error => (`Black, `Red)
-          | Logs.Warning => (`Black, `Yellow)
-          | Logs.Info => (`Black, `Blue)
-          | Logs.Debug => (`Black, `Green)
-          };
-
-        let style = Fmt.(styled(`Fg(fg), styled(`Bg(bg), pp_level)));
-        Fmt.pf(ppf, "%a", style, level);
-      };
       Logs.{
         report: (_src, level, ~over, k, msgf) => {
           let k = _ => {
@@ -168,6 +196,7 @@ module Internal = {
 
           msgf((~header as _=?, ~tags=?, fmt) => {
             let namespace = Option.bind(tags, Tag.find(Namespace.tag));
+            let microlevel = Option.bind(tags, Tag.find(Microlevel.tag));
             let dt = Option.bind(tags, Tag.find(DeltaTime.tag));
             let color = Namespace.pickColor(namespace);
             let style = pp => Fmt.(styled(`Fg(color), pp));
@@ -176,8 +205,8 @@ module Internal = {
               k,
               consoleFormatter,
               "%a %a %a : @[" ^^ fmt ^^ "@]@.",
-              pp_level_styled,
-              level,
+              Level.pp_styled,
+              (level, microlevel),
               ppf => Option.iter(DeltaTime.pp(ppf)),
               dt,
               ppf => Option.iter(Fmt.pf(ppf, "%a", style(Namespace.pp))),
@@ -202,13 +231,14 @@ module Internal = {
 
             msgf((~header=?, ~tags=?, fmt) => {
               let namespace = Option.bind(tags, Tag.find(Namespace.tag));
+              let microlevel = Option.bind(tags, Tag.find(Microlevel.tag));
 
               Format.kfprintf(
                 k,
                 ppf,
                 "%a %a @[" ^^ fmt ^^ "@]@.",
-                pp_header,
-                (level, header),
+                Level.pp,
+                (level, microlevel),
                 ppf => Option.iter(Namespace.pp(ppf)),
                 namespace,
               );
@@ -227,6 +257,34 @@ module Internal = {
       },
     };
   };
+
+  let log = (~namespace="Global", (level, maybeMicrolevel), msgf) =>
+    Logs.msg(level, m =>
+      if (Namespace.isEnabled(namespace)) {
+        let tags =
+          Logs.Tag.(
+            empty
+            |> add(Namespace.tag, namespace)
+            |> add(DeltaTime.tag, DeltaTime.get())
+          );
+
+        let tags =
+          switch (maybeMicrolevel) {
+          | Some(microlevel) =>
+            Logs.Tag.add(Microlevel.tag, microlevel, tags)
+          | None => tags
+          };
+
+        msgf(m(~header=?None, ~tags));
+      }
+    );
+
+  let fn = (~namespace=?, name, f, x) => {
+    log(~namespace?, Level.trace, m => m("Entering %s", name));
+    let ret = f(x);
+    log(~namespace?, Level.trace, m => m("Exited %s", name));
+    ret;
+  };
 };
 
 let isPrintingEnabled = () => Logs.reporter() !== Logs.nop_reporter;
@@ -236,40 +294,19 @@ let isNamespaceEnabled = Namespace.isEnabled;
 
 type msgf('a, 'b) = (format4('a, Format.formatter, unit, 'b) => 'a) => 'b;
 
-let log = (~namespace="Global", level, msgf) =>
-  Logs.msg(level, m =>
-    if (Namespace.isEnabled(namespace)) {
-      let tags =
-        Logs.Tag.(
-          empty
-          |> add(Namespace.tag, namespace)
-          |> add(DeltaTime.tag, DeltaTime.get())
-        );
-
-      msgf(m(~header=?None, ~tags));
-    }
-  );
-
-let info = msg => log(Logs.Info, m => m("%s", msg));
-let debug = msgf => log(Logs.Debug, m => m("%s", msgf()));
-let error = msg => log(Logs.Error, m => m("%s", msg));
+let info = msg => Internal.log(Level.info, m => m("%s", msg));
+let debug = msgf => Internal.log(Level.debug, m => m("%s", msgf()));
+let error = msg => Internal.log(Level.error, m => m("%s", msg));
 
 let perf = (msg, f) => {
   let startTime = Unix.gettimeofday();
   let ret = f();
   let endTime = Unix.gettimeofday();
-  log(Logs.Debug, m => m("[PERF] %s took %fs", msg, endTime -. startTime));
+  Internal.log(~namespace="Performance Mesaurement", Level.perf, m => m("%s took %fs", msg, endTime -. startTime));
   ret;
 };
 
-let fn' = (~namespace=?, name, f, x) => {
-  log(~namespace?, Logs.Debug, m => m("Entering %s", name));
-  let ret = f(x);
-  log(~namespace?, Logs.Debug, m => m("Exited %s", name));
-  ret;
-};
-
-let fn = (name, f, x) => fn'(~namespace=?None, name, f, x);
+let fn = (name, f, x) => Internal.fn(~namespace=?None, name, f, x);
 
 module type Logger = {
   let errorf: msgf(_, unit) => unit;
@@ -280,23 +317,27 @@ module type Logger = {
   let info: string => unit;
   let debugf: msgf(_, unit) => unit;
   let debug: string => unit;
+  let tracef: msgf(_, unit) => unit;
+  let trace: string => unit;
   let fn: (string, 'a => 'b, 'a) => 'b;
 };
 
 let withNamespace = namespace => {
-  let logf = (level, msgf) => log(~namespace, level, msgf);
+  let logf = (level, msgf) => Internal.log(~namespace, level, msgf);
   let log = (level, msg) => logf(level, m => m("%s", msg));
 
   module Log = {
-    let errorf = msgf => logf(Logs.Error, msgf);
-    let error = log(Logs.Error);
-    let warnf = msgf => logf(Logs.Warning, msgf);
-    let warn = log(Logs.Warning);
-    let infof = msgf => logf(Logs.Info, msgf);
-    let info = log(Logs.Info);
-    let debugf = msgf => logf(Logs.Debug, msgf);
-    let debug = log(Logs.Debug);
-    let fn = (name, f, x) => fn'(~namespace, name, f, x);
+    let errorf = msgf => logf(Level.error, msgf);
+    let error = log(Level.error);
+    let warnf = msgf => logf(Level.warn, msgf);
+    let warn = log(Level.warn);
+    let infof = msgf => logf(Level.info, msgf);
+    let info = log(Level.info);
+    let debugf = msgf => logf(Level.debug, msgf);
+    let debug = log(Level.debug);
+    let tracef = msgf => logf(Level.trace, msgf);
+    let trace = log(Level.trace);
+    let fn = (name, f, x) => Internal.fn(~namespace, name, f, x);
   };
 
   ((module Log): (module Logger));
