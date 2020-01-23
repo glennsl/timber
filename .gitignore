@@ -36,3 +36,5 @@ _staging/
 
 # npm
 node_modules/
+
+test.log
