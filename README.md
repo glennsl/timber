@@ -4,11 +4,11 @@ Opinionated logging framework based on [@dbuenzli/logs](https://github.com/dbuen
 ![Screenshot](https://github.com/glennsl/timber/blob/master/assets/screenshot.png)
 
 ### Features
-- Colorized output (except on Windows, becasue Windows)
+- Colorized output (except on Windows, because Windows)
 - Namespaces, filterable and colorized by hash
 - Delta timestamp showing time since previous message
 - Console and file reporter out-of-the-box
-- Extra TRACE log level
+- TRACE level
 - Very simple API
 
 ### Example
