@@ -1,5 +1,7 @@
-opam-version: "1.2"
-version: "dev"
+opam-version: "2.0"
 maintainer: "glennsl@outrunlabs.com"
-author: ["Glenn Slotte"]
-build: []
+authors: ["Glenn Slotte"]
+license: "MIT"
+homepage: "https://github.com/glennsl/timber"
+bug-reports: "https://github.com/glennsl/timber/issues"
+synopsis: "Opinionated logging framework based on @dbuenzli/logs"
