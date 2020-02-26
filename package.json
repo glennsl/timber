@@ -1,6 +1,6 @@
 {
-  "name": "timber",
-  "version": "0.1.0",
+  "name": "@glennsl/timber",
+  "version": "1.0.0",
   "description": "Opinionated logging framework based on @dbuenzli/logs",
   "license": "MIT",
   "esy": {
