@@ -20,7 +20,7 @@ Timber.App.setLogFile("test.log");
 
 module Log = (val Timber.Log.withNamespace("Timber"));
 
-Log.trace("Thois won't be logged");
+Log.trace("This won't be logged");
 
 Log.infof(m => m("Formatting and lazy evaluation %i", Random.int(100)));
 

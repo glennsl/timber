@@ -27,7 +27,7 @@ module Internal = {
     log(~namespace?, Level.trace, m =>
       switch (pp) {
       | Some(pp) => m("Exited %s with %s", name, pp(ret))
-      | None => m("Exited %s%s", name, "") // This weirdness is because the turened formatter must have the same type for both branches
+      | None => m("Exited %s%s", name, "") // This weirdness is because the returned formatter must have the same type for both branches
       }
     );
     ret;
