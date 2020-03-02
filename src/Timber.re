@@ -100,6 +100,10 @@ module App = {
   let setNamespaceFilter = Namespace.setFilter;
 };
 
+module Debug = {
+  let setLastLogTime = DeltaTime.set;
+};
+
 // init
 let () =
   if (Sys.win32) {

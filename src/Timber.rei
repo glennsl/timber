@@ -26,7 +26,7 @@ module Level: {
 };
 
 module Log: {
-  let withNamespace: string => (module Logger);
+  let withNamespace: (string) => (module Logger);
   let perf: (string, unit => 'a) => 'a;
 };
 
@@ -55,4 +55,12 @@ module App: {
    *   setNamespaceFilter("Oni2.*, -Revery*")
    */
   let setNamespaceFilter: string => unit;
+};
+
+module Debug: {
+  /**
+   * Sets the internally stored last time of a log. This should not be used
+   * except for testing.
+   */
+  let setLastLogTime: float => unit;
 };
