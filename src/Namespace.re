@@ -8,7 +8,7 @@ module Constants = {
     `Red,
     //`White,
     `Yellow,
-    `Hi(`Black),
+    //`Hi(`Black),
     `Hi(`Blue),
     `Hi(`Cyan),
     `Hi(`Green),
