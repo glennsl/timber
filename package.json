@@ -21,7 +21,7 @@
   "devDependencies": {
     "@esy-ocaml/reason": ">3.5.0",
     "@opam/merlin": "^3.3.2",
-    "ocaml": "~4.7.0",
+    "ocaml": "~4.8.0",
     "refmterr": "^3.3.0"
   }
 }
