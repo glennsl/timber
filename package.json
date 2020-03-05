@@ -15,7 +15,6 @@
     "@opam/fmt": "^0.8.8",
     "@opam/logs": "^0.7.0",
     "@opam/re": "*",
-    "@reason-native/console": ">0.0.0",
     "ocaml": "^4.6.0"
   },
   "devDependencies": {
