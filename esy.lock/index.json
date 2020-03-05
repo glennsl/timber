@@ -1,5 +1,5 @@
 {
-  "checksum": "6dbf52f35ae25545730e5ae52d6d0969",
+  "checksum": "b674417be4760785d5bc3d4a88ef86db",
   "root": "@glennsl/timber@link-dev:./package.json",
   "node": {
     "refmterr@3.3.0@d41d8cd9": {
@@ -827,9 +827,9 @@
       },
       "overrides": [],
       "dependencies": [
-        "ocaml@4.7.1004@d41d8cd9", "@opam/re@opam:1.9.0@d4d5e13d",
-        "@opam/logs@opam:0.7.0@1d03143e", "@opam/fmt@opam:0.8.8@01c3a23c",
-        "@opam/dune@opam:2.3.1@b10b59bf"
+        "ocaml@4.7.1004@d41d8cd9", "@reason-native/console@0.1.0@d41d8cd9",
+        "@opam/re@opam:1.9.0@d4d5e13d", "@opam/logs@opam:0.7.0@1d03143e",
+        "@opam/fmt@opam:0.8.8@01c3a23c", "@opam/dune@opam:2.3.1@b10b59bf"
       ],
       "devDependencies": [
         "refmterr@3.3.0@d41d8cd9", "ocaml@4.7.1004@d41d8cd9",

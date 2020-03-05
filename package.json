@@ -7,14 +7,13 @@
     "build": "dune build -p timber -j4",
     "buildDev": "refmterr dune build -p timber -j4"
   },
-  "scripts": {
-    "format": "esy dune build @fmt --auto-promote"
-  },
+  "scripts": { "format": "esy dune build @fmt --auto-promote" },
   "dependencies": {
     "@opam/dune": "*",
     "@opam/fmt": "^0.8.8",
     "@opam/logs": "^0.7.0",
     "@opam/re": "*",
+    "@reason-native/console": "^0.1.0",
     "ocaml": "^4.6.0"
   },
   "devDependencies": {
