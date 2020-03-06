@@ -3,12 +3,7 @@ module Internal = {
     Logs.msg(level, m =>
       if (Level.isEnabled((level, maybeMicrolevel))
           && Namespace.isEnabled(namespace)) {
-        let tags =
-          Logs.Tag.(
-            empty
-            |> add(Namespace.tag, namespace)
-            |> add(DeltaTime.tag, DeltaTime.get())
-          );
+        let tags = Logs.Tag.(empty |> add(Namespace.tag, namespace));
 
         let tags =
           switch (maybeMicrolevel) {
@@ -98,10 +93,6 @@ module App = {
   let setLevel = Level.set;
   let setLogFile = Reporter.File.setLogFile;
   let setNamespaceFilter = Namespace.setFilter;
-};
-
-module Debug = {
-  let setLastLogTime = DeltaTime.set;
 };
 
 // init

@@ -1,4 +1,2 @@
-let tag: Logs.Tag.def(float);
-let get: unit => float;
-let set: float => unit;
+let generator: (unit, unit) => float;
 let pp: Fmt.t(float);

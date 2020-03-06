@@ -21,6 +21,8 @@ module Console = {
 
   let disableColors = () => Fmt.set_style_renderer(formatter, `None);
 
+  let getDeltaTime = DeltaTime.generator();
+
   let reporter =
     Logs.{
       report: (_src, level, ~over, k, msgf) => {
@@ -34,7 +36,6 @@ module Console = {
           let namespace = Tag.get(Namespace.tag, tags);
           let microlevel = Tag.find(Level.Microlevel.tag, tags);
           let level = (level, microlevel);
-          let dt = Tag.get(DeltaTime.tag, tags);
           let color = Namespace.pickColor(namespace);
           let style = pp => Fmt.(styled(`Fg(color), pp));
 
@@ -45,7 +46,7 @@ module Console = {
             Level.pp_styled,
             level,
             DeltaTime.pp,
-            dt,
+            getDeltaTime(),
             ppf => Fmt.pf(ppf, "%a", style(Namespace.pp)),
             namespace,
           );
@@ -79,6 +80,8 @@ module File = {
     channel := Some(chan);
   };
 
+  let getDeltaTime = DeltaTime.generator();
+
   let reporter =
     Logs.{
       report: (_src, level, ~over, k, msgf) => {
@@ -100,9 +103,11 @@ module File = {
             Format.kfprintf(
               k,
               ppf,
-              "%a %a @[" ^^ fmt ^^ "@]@.",
+              "%a %a %a : @[" ^^ fmt ^^ "@]@.",
               Level.pp,
               level,
+              DeltaTime.pp,
+              getDeltaTime(),
               Namespace.pp,
               namespace,
             );

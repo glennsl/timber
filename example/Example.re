@@ -35,7 +35,7 @@ Timber.App.setLogFile("test.log");
 
 {
   module Log = (val Timber.Log.withNamespace("Timber.Time"));
-  let secondsAgo = f => Timber.Debug.setLastLogTime(Unix.gettimeofday() -. f);
+  let secondsAgo = _ => ();
 
   secondsAgo(9.90);
   Log.info("Large milliseconds");

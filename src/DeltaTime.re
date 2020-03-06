@@ -1,13 +1,13 @@
-let last = ref(Unix.gettimeofday());
+let generator = () => {
+  let last = ref(Unix.gettimeofday());
 
-let get = () => {
-  let now = Unix.gettimeofday();
-  let delta = now -. last^;
-  last := now;
-  delta;
+  () => {
+    let now = Unix.gettimeofday();
+    let delta = now -. last^;
+    last := now;
+    delta;
+  };
 };
-
-let set = x => last := x;
 
 let pp = (ppf, dt) =>
   if (dt > 36000.) {
@@ -21,5 +21,3 @@ let pp = (ppf, dt) =>
   } else {
     Fmt.pf(ppf, "%+5.0fms", dt *. 1000.);
   };
-
-let tag = Logs.Tag.def("time", pp);
