@@ -56,3 +56,5 @@ module App: {
    */
   let setNamespaceFilter: string => unit;
 };
+
+module Testing: {let setTimeFn: (unit => float) => unit;};

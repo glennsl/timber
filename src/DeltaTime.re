@@ -1,8 +1,12 @@
+let timeFn = ref(Unix.gettimeofday);
+let setTimeFn = f => timeFn := f;
+let getTime = () => timeFn^();
+
 let generator = () => {
-  let last = ref(Unix.gettimeofday());
+  let last = ref(getTime());
 
   () => {
-    let now = Unix.gettimeofday();
+    let now = getTime();
     let delta = now -. last^;
     last := now;
     delta;

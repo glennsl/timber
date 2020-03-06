@@ -105,3 +105,7 @@ let () =
 
 // default to only log messages at log level Info and above
 Level.set(Level.info);
+
+module Testing = {
+  let setTimeFn = DeltaTime.setTimeFn;
+};
