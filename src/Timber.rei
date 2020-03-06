@@ -26,7 +26,7 @@ module Level: {
 };
 
 module Log: {
-  let withNamespace: (string) => (module Logger);
+  let withNamespace: string => (module Logger);
   let perf: (string, unit => 'a) => 'a;
 };
 
