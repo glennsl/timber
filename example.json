@@ -1,6 +1,0 @@
-{
-  "source": "./package.json",
-  "scripts": {
-    "run": "esy x example"
-  }
-}

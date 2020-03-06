@@ -8,6 +8,7 @@
     "buildDev": "refmterr dune build -p timber -j4"
   },
   "scripts": {
+    "example": "esy x example",
     "format": "esy dune build @fmt --auto-promote"
   },
   "dependencies": {
@@ -24,4 +25,3 @@
     "refmterr": "^3.3.0"
   }
 }
-
